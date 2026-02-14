@@ -1,0 +1,38 @@
+galaxy_info:
+  author: Yasin Siadat
+  description: A complete role to deploy WordPress on a LAMP stack (Apache, MariaDB, PHP).
+  company: Personal Project
+  
+  # License for the code (MIT is standard for open source)
+  license: MIT
+
+  # Minimum version of Ansible required to run this role
+  min_ansible_version: 2.9
+
+  # Platforms supported by this role
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+        - focal
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - all
+        - buster
+        - bullseye
+        - bookworm
+
+  # Tags to help categorize the role in Ansible Galaxy
+  galaxy_tags:
+    - wordpress
+    - lamp
+    - apache
+    - mariadb
+    - php
+    - web
+    - development
+
+# List any other roles that this role depends on here
+dependencies: []
