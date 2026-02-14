@@ -1,0 +1,78 @@
+---
+- name: Install Apache, MariaDB, PHP and dependencies
+  apt:
+    name:
+      - apache2
+      - mariadb-server
+      - python3-pymysql  
+      - php
+      - php-mysql
+      - php-curl
+      - php-gd
+      - php-mbstring
+      - php-xml
+      - php-xmlrpc
+    state: present
+    update_cache: yes
+
+- name: Start and Enable Apache and MariaDB
+  service:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - apache2
+    - mariadb
+
+- name: Create WordPress Database
+  community.mysql.mysql_db:
+    name: "{{ wp_db_name }}"
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Create WordPress Database User
+  community.mysql.mysql_user:
+    name: "{{ wp_db_user }}"
+    password: "{{ wp_db_pass }}"
+    priv: "{{ wp_db_name }}.*:ALL"
+    host: localhost
+    state: present
+    login_unix_socket: /var/run/mysqld/mysqld.sock
+
+- name: Download and unpack WordPress
+  unarchive:
+    src: https://wordpress.org/latest.tar.gz
+    dest: /var/www/html/
+    remote_src: yes
+    creates: /var/www/html/wordpress
+
+- name: Set permissions for WordPress directory
+  file:
+    path: /var/www/html/wordpress
+    owner: www-data  #team meli :))
+    group: www-data
+    state: directory
+    recurse: yes
+
+- name: Configure WordPress wp-config.php
+  template:
+    src: wp-config.php.j2
+    dest: /var/www/html/wordpress/wp-config.php
+  notify: Restart Apache
+
+- name: Setup Apache VirtualHost
+  template:
+    src: vhost.conf.j2
+    dest: /etc/apache2/sites-available/wordpress.conf
+  notify: Restart Apache
+
+- name: Enable WordPress Site
+  command: a2ensite wordpress.conf
+  args:
+    creates: /etc/apache2/sites-enabled/wordpress.conf
+  notify: Restart Apache
+
+- name: Disable default Apache site
+  command: a2dissite 000-default.conf
+  ignore_errors: yes
+  notify: Restart Apache

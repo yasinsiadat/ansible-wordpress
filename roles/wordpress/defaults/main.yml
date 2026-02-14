@@ -1,0 +1,7 @@
+---
+wp_db_name: wordpress_db
+wp_db_user: wp_user
+wp_db_pass: "secure_password"
+wp_db_host: localhost
+domain_name: example.com
+http_port: 80
